@@ -1,0 +1,11 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: my blog
+category: blog
+---
+#+END_HTML
+* test markup
+My first blog
