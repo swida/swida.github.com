@@ -1,0 +1,18 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: xrandr使用
+category: Linux
+---
+#+END_HTML
+
+- 双显示器显示模式设置
+ - xrandr --output VGA --same-as LVDS --mode 1024x768 
+ - xrandr --output VGA --right-of LVDS --auto
+
+- 打开外接显示器(最高分辨率)，设置为右侧扩展屏幕
+ - xrandr --output VGA --off
+- 关闭外接显示器
+ - xrandr --output VGA --auto --output LVDS --off

@@ -1,0 +1,91 @@
+---
+layout: post
+title: gcc ld 使用三则
+category: Build
+---
+
+<div id="table-of-contents">
+<h2>目录</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 ld 参数 -whole-archive</a></li>
+<li><a href="#sec-2">2 如何过滤掉一个应用程序没有用到的符号</a></li>
+<li><a href="#sec-3">3 在代码中强制或忽略某些编译选项</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-3">
+<h3 id="sec-1">ld 参数 -whole-archive</h3>
+<div class="outline-text-3" id="text-1">
+
+<p>当把一个静态库连接到动态库时，有时候我们希望静态库中的所有符号都出现在
+动态库中，而不是只是动态库用到的那些符号这时候我们就需要这个参数了：
+</p>
+
+
+<pre class="src src-sh"><span style="color: #ff7f24;">#</span><span style="color: #ff7f24;">&#36825;&#37324;&#20351;&#29992;-no-whole-archive&#26469;&#20351;&#20182;&#21482;&#23545;&#19968;&#20010;&#38745;&#24577;&#24211;&#26377;&#25928;&#36991;&#20813;&#24433;&#21709;&#20854;&#20182;&#38745;&#24577;&#24211;</span>
+gcc -o liba.so  -shared  a.c -fPIC -L. -Wl,-whole-archive -lb-Wl,-no-whole-archive
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-3">
+<h3 id="sec-2">如何过滤掉一个应用程序没有用到的符号</h3>
+<div class="outline-text-3" id="text-2">
+
+<p>有时我们定义了需要函数，但实际暂时并没有调用到，我不想把没用到的符号也
+连接到应用程序中以免增大可执行文件的尺寸可以使用:
+</p><ul>
+<li>首先在gcc中使用参数 -function-sections，-data-sections使每一个函数和
+</li>
+</ul>
+
+<p>数据一个section
+</p><ul>
+<li>然后在ld中指定参数-gc-sections去掉那些没用的section
+</li>
+</ul>
+
+<p>如：
+</p>
+
+
+<pre class="src src-sh">gcc -c a.cpp b.cpp -function-sections -data-sections
+gcc -o app a.cpp b.cpp -wl,-gc-sections
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-3">
+<h3 id="sec-3">在代码中强制或忽略某些编译选项</h3>
+<div class="outline-text-3" id="text-3">
+
+<ul>
+<li>忽略
+</li>
+</ul>
+
+
+
+
+<pre class="src src-C"><span style="color: #b0c4de;">#pragma</span> GCC diagnostic ignored <span style="color: #ffa07a;">"-Wreorder"</span>
+</pre>
+
+<ul>
+<li>强制
+</li>
+</ul>
+
+
+
+
+<pre class="src src-C"><span style="color: #b0c4de;">#pragma</span> GCC diagnostic error <span style="color: #ffa07a;">"-Wreorder"</span>
+</pre>
+
+</div>
+</div>

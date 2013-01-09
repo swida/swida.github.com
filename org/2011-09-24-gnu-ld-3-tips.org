@@ -1,0 +1,36 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: gcc ld 使用三则
+category: Build
+---
+#+END_HTML
+** ld 参数 -whole-archive
+当把一个静态库连接到动态库时，有时候我们希望静态库中的所有符号都出现在
+动态库中，而不是只是动态库用到的那些符号这时候我们就需要这个参数了：
+#+BEGIN_SRC sh
+#这里使用-no-whole-archive来使他只对一个静态库有效避免影响其他静态库
+gcc -o liba.so  -shared  a.c -fPIC -L. -Wl,-whole-archive -lb-Wl,-no-whole-archive
+#+END_SRC
+** 如何过滤掉一个应用程序没有用到的符号
+有时我们定义了需要函数，但实际暂时并没有调用到，我不想把没用到的符号也
+连接到应用程序中以免增大可执行文件的尺寸可以使用:
+ - 首先在gcc中使用参数 -function-sections，-data-sections使每一个函数和
+数据一个section
+ - 然后在ld中指定参数-gc-sections去掉那些没用的section
+如：
+#+BEGIN_SRC sh
+gcc -c a.cpp b.cpp -function-sections -data-sections
+gcc -o app a.cpp b.cpp -wl,-gc-sections
+#+END_SRC
+** 在代码中强制或忽略某些编译选项
+- 忽略
+#+BEGIN_SRC C
+#pragma GCC diagnostic ignored "-Wreorder"
+#+END_SRC
+- 强制
+#+BEGIN_SRC C
+#pragma GCC diagnostic error "-Wreorder"
+#+END_SRC

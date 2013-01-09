@@ -1,0 +1,59 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: 在基于FreeDesktop标准的GNU/Linux桌面环境加入菜单
+category: Linux
+---
+#+END_HTML
+
+- 准备Desktop文件，作为程序的快捷方式如，放在系统的:
+/usr/share/applications下，如果只给某个用户安装则放在
+/.local/share/applications下，如下面例子(kingbasees.desktop)：
+
+#+BEGIN_EXAMPLE
+[Desktop Entry]
+Version=1.0
+Name=kingbaseES
+Comment=KingbaseES
+Exec=kingbase
+Type=Application
+Categories=KingbaseApps
+#+END_EXAMPLE
+
+- 准备directory文件，作为新加目录的描述放于：
+/usr/share/desktop-directories目录下（用
+户：.local/share/desktop-directories），如(kingbase.directory)：
+
+#+BEGIN_EXAMPLE
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Kingbase
+Name[zh_CN]=人大金仓
+Icon=package_utilities
+Type=Directory
+#+END_EXAMPLE
+
+- 准备menu文件，描述新加菜单结构描述，放在：
+/etc/xdg/menus/applications-merged下面（用户：.config/menus下），如：
+
+#+BEGIN_EXAMPLE
+<Menu>
+        <Name>Applications</Name>
+		<Name>Applications</Name>
+          <Menu>
+	    <Name> Kingbase </Name>
+            <Directory>kingbase.directory</Directory>
+            <Include>
+              <Category>KingbaseApps</Category>
+            </Include>
+	  </Menu>
+</menu>
+</src>
+#+END_EXAMPLE
+
+参考：
+ - [[http://publib.boulder.ibm.com/infocenter/eeccomp/eec/index.jsp?topic=/com.ibm.eec.pit.doc/concepts/c_pit_official_362_kde_menu_and_gnome_menu_entries.htm][ibm的一个帮助]]
+
