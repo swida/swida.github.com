@@ -51,9 +51,5 @@ Type=Directory
             </Include>
 	  </Menu>
 </menu>
-</src>
 #+END_EXAMPLE
-
-参考：
- - [[http://publib.boulder.ibm.com/infocenter/eeccomp/eec/index.jsp?topic=/com.ibm.eec.pit.doc/concepts/c_pit_official_362_kde_menu_and_gnome_menu_entries.htm][ibm的一个帮助]]
 
