@@ -1,0 +1,23 @@
+---
+layout: post
+title: 在cron里以普通用户运行 reboot
+category: Linux
+---
+
+<p>
+如果把 shutdown 在 sudoers 中设置成 NOPASSWD 然后在crontab中加上：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo shutdown -r now
+</pre>
+</div>
+<p>
+sudo会打印类似No tty的错误拒绝执行。
+此时需要为该用户加上不请求TTY，正确的sudoers配置应该是：
+</p>
+
+<pre class="example">
+Defaults:dailybuild    !requiretty
+dailybuild	ALL=NOPASSWD: /sbin/shutdown
+</pre>
