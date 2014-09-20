@@ -4,18 +4,17 @@ title: 在基于FreeDesktop标准的GNU/Linux桌面环境加入菜单
 category: Linux
 ---
 
-<ul>
+<ul class="org-ul">
 <li>准备Desktop文件，作为程序的快捷方式如，放在系统的:
 </li>
 </ul>
-
-<p>/usr/share/applications下，如果只给某个用户安装则放在
+<p>
+/usr/share/applications下，如果只给某个用户安装则放在
 /.local/share/applications下，如下面例子(kingbasees.desktop)：
 </p>
 
-
-
-<pre class="example">[Desktop Entry]
+<pre class="example">
+[Desktop Entry]
 Version=1.0
 Name=kingbaseES
 Comment=KingbaseES
@@ -24,19 +23,17 @@ Type=Application
 Categories=KingbaseApps
 </pre>
 
-
-<ul>
+<ul class="org-ul">
 <li>准备directory文件，作为新加目录的描述放于：
 </li>
 </ul>
-
-<p>/usr/share/desktop-directories目录下（用
+<p>
+/usr/share/desktop-directories目录下（用
 户：.local/share/desktop-directories），如(kingbase.directory)：
 </p>
 
-
-
-<pre class="example">[Desktop Entry]
+<pre class="example">
+[Desktop Entry]
 Encoding=UTF-8
 Version=1.0
 Name=Kingbase
@@ -45,28 +42,24 @@ Icon=package_utilities
 Type=Directory
 </pre>
 
-
-<ul>
+<ul class="org-ul">
 <li>准备menu文件，描述新加菜单结构描述，放在：
 </li>
 </ul>
-
-<p>/etc/xdg/menus/applications-merged下面（用户：.config/menus下），如：
+<p>
+/etc/xdg/menus/applications-merged下面（用户：.config/menus下），如：
 </p>
 
-
-
-<pre class="example">&lt;Menu&gt;
+<pre class="example">
+&lt;Menu&gt;
         &lt;Name&gt;Applications&lt;/Name&gt;
-                &lt;Name&gt;Applications&lt;/Name&gt;
+		&lt;Name&gt;Applications&lt;/Name&gt;
           &lt;Menu&gt;
-            &lt;Name&gt; Kingbase &lt;/Name&gt;
+	    &lt;Name&gt; Kingbase &lt;/Name&gt;
             &lt;Directory&gt;kingbase.directory&lt;/Directory&gt;
             &lt;Include&gt;
               &lt;Category&gt;KingbaseApps&lt;/Category&gt;
             &lt;/Include&gt;
-          &lt;/Menu&gt;
+	  &lt;/Menu&gt;
 &lt;/menu&gt;
 </pre>
-
-
