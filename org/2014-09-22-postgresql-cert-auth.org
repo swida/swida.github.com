@@ -1,0 +1,104 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: 在PostgreSQL中使用证书进行登陆验证
+category: PostgreSQL
+---
+#+END_HTML
+
+PostgreSQL支持多种[[http://www.postgresql.org/docs/devel/static/client-authentication.html][验证方式]] ，其中证书验证需要在[[http://www.postgresql.org/docs/devel/static/ssl-tcp.html][启用SSL]] , SSL本身的设置
+就很麻烦，本文深度参考文后的参考页面，讲述从制作CA证书到完成用户的基于
+证书的认证的过程。
+
+新建目录/tmp/cert，以下所有操作都在该用户下进行。
+
+* 设置CA
+** 产生CA私钥
+#+BEGIN_SRC sh
+openssl genrsa -des3 -out trustly-ca.key 2048
+chmod 400 trustly-ca.key
+#+END_SRC
+** 产生CA证书
+#+BEGIN_SRC sh
+openssl req -new -x509 -days 3650 \
+-subj '/C=SE/ST=Stockholm/L=Stockholm/O=Trustly/CN=trustly' 
+-key trustly-ca.key -out trustly-ca.crt
+#+END_SRC
+* 设置 PostgreSQL 服务器
+** 准备数据目录
+始化PostgreSQL数据目录在/tmp/cert/data下，然后编辑配置文件打开如下选项：
+
+#+BEGIN_SRC conf
+ssl = on
+ssl_cert_file = 'server.crt'
+ssl_key_file = 'server.key'
+ssl_ca_file = 'root.crt'
+#+END_SRC
+下面我们就来产生以上配置需要的文件。
+
+** 生成PostgreSQL服务器端私钥
+#+BEGIN_SRC sh
+# 生成私钥
+openssl genrsa -des3 -out data/server.key 2048
+# 移除密码
+openssl rsa -in data/server.key -out data/server.key
+chmod 400 data/server.key
+#+END_SRC
+** 作用CA签名生成PostgreSQL服务器端证书
+#+BEGIN_SRC sh
+# 生成签名请求
+openssl req -new -nodes -key data/server.key -days 3650 \
+-out server.csr -subj '/C=SE/ST=Stockholm/L=Stockholm/O=Trustly/CN=postgres'
+# 使用CA的私钥签名
+openssl x509 -days 3650 -req -in server.csr -CA trustly-ca.crt \
+-CAkey trustly-ca.key -CAcreateserial -out data/server.crt
+#+END_SRC
+** CA的证书和服务器端证书加到 root.crt
+本步使所有CA签名的证书都可以通过服务器端验证
+#+BEGIN_SRC sh
+cat data/server.crt trustly-ca.pem > data/root.crt
+#+END_SRC
+** 设置PostgreSQL服务器端授权访问规则
+启动PostgreSQL 登陆，执行SQL:
+#+BEGIN_SRC sql
+CREATE GROUP sslcertusers;
+ALTER GROUP sslcertusers ADD USER swida;
+#+END_SRC
+在pg\_hba.conf中加入：
+
+#+BEGIN_EXAMPLE
+hostssl mydatabase +sslcertusers 192.168.1.0/24 cert
+# 重新装载配置文件
+pg_ctl reload -D data
+#+END_EXAMPLE
+
+* 设置PostgreSQL客户端
+** 拷贝服务器端根证书
+#+BEGIN_SRC sh
+cp data/root.crt root.crt
+#+END_SRC
+** 生成客户端私钥
+#+BEGIN_SRC sh
+openssl genrsa -des3 -out postgresql.key 1024
+# 如果需要可以移除密码
+openssl rsa -in postgresql.key -out postgresql.key
+#+END_SRC
+** 生成经过CA签名的证书
+#+BEGIN_SRC sh
+openssl req -new -key postgresql.key -out postgresql.csr \
+-subj '/C=SE/ST=Stockholm/L=Stockholm/O=Trustly/CN=swida'
+openssl x509 -req -in postgresql.csr -CA trustly-ca.pem -CAkey trustly-ca.key \
+-out postgresql.crt -CAcreateserial
+chmod 400 postgresql.key
+#+END_SRC
+** 访问数据库
+使用下列命令访问数据库应该不需要密码
+#+BEGIN_SRC sh
+psql -Uswida -h host -d "dbname=postgres sslmode=require sslcert=postgresql.crt sslkey=postgresql.key"
+#+END_SRC
+可能将以上文件：postgresql.key, postgresql.crt, root.crt拷贝到
+~/.postgresql/目录上，不需要指定sslcert和sslkey即可访问。
+
+参考：http://joelonsql.com/2013/04/27/securing-postgresql-using-hostssl-cert-clientcert1/
