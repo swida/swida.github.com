@@ -1,0 +1,29 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: Docker使用中遇到的几个问题
+category: Docker
+---
+#+END_HTML
+  * Docker从源码编译MySQL形成的Image特别大
+    编译出来的目标文件只有500多MB，而生成Image比Base Image大了将近2个G，原来是Dockerfile中的指令：
+    #+BEGIN_EXAMPLE
+    ADD . /usr/src/mysql
+    RUN cd /usr/srcmysql cmake . && ... && rm -rf /usr/src/mysql
+    #+END_EXAMPLE
+    引起的，ADD指令将MySQL源代码（源代码本身有1.1G）加到Image里进行编译，由于ADD和RUN是位于不同层的，所以在RUN
+    里删除源代码是不会回收ADD层的空间的，docker官方仓库在1.12.3之后包含了一个[[https://github.com/docker/docker/issues/332][Patch]] 实现了一个squash参数，可以做
+    到不同层之间的合并。
+
+  * 使用docker-compose启动多个Container报错：
+  #+BEGIN_EXAMPLE
+   FATA[0000] Error starting daemon: Error initializing network controller: Error creating default "bridge" network:
+   failed to parse pool request for address space "LocalDefault" pool "" subpool "": could not find an available predefined network
+  #+END_EXAMPLE
+  从[[http://cstdlib.com/tech/2015/11/27/install-docker-on-aliyun-ecs/][这篇]] 文章来看，是由于docker找不到可用的内网网段了，即宿主机把可用的内网网段都路由了，可以使用 docker
+  network生成一个网络给compose用:
+  #+BEGIN_SRC sh
+  docker network create --subnet 172.18.0.0/24 my-network
+  #+END_SRC
