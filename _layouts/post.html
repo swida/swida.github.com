@@ -6,9 +6,7 @@ layout: default
 		<h2><a href="{{ page.url }}" title="{{ page.title }}">{{ page.title }}</a> <g:plusone size="medium"></g:plusone></h2>
 		<span style="float:right">{{ page.date | date_to_string }}</span>
 		<div class="entry">
-		  {{content}}
-		  <!-- XXX XFW -->
-			<!--
+			{{content}}
 			<p class="postmetadata">
 				<div id="disqus_thread"></div>
 				<script type="text/javascript">
@@ -24,7 +22,6 @@ layout: default
 				</script>
 				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 			</p>
-			-->
 		</div>
 		<div class="navigation">
 	    {% if page.next %}

@@ -5,13 +5,10 @@ layout: default
 	<div class="posts">
 		<h2><a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></h2>
 		<span style="float:right">{{ post.date | date_to_string }}</span>
-		<!-- XXX XFW -->
-		<!--
 		<div class="entry">
 			{{ post.content }}
 			<p class="postmetadata"><a href="{{ post.url }}#disqus_thread"></a><br /><br /></p>
 		</div><br />
-		-->
 	  </div>
 	  {% endfor %}
 	
